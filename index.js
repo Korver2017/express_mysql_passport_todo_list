@@ -15,7 +15,7 @@ var con = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
 	password: 'password',
-	database: 'demo_nodejs',
+	database: 'sitepoint',
 	port: 3306
 });
 
@@ -30,12 +30,17 @@ con.connect (function (err) {
   console.log ('connecting success');
 });
 
-con.end ();
+con.query ('SELECT * FROM authors', (err, rows) => {
+  if (err) throw err;
 
-app.use (express.static (path.join (__dirname, 'public')));
-
-// DB state
-app.use (function (req, res, next) {
-  req.con = con;
-  next();
+  console.log ('Data received from Db:');
+  console.log (rows);
 });
+
+con.query ('SELECT 12 + 34 As result', (err, rows) => {
+  if (err) throw err;
+
+	console.log ('The result is: ', rows[0].result);
+});
+
+con.end ();
