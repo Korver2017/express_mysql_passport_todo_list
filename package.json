@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Korver2017/express_mysql_passport_todo_list#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
     "pug": "^3.0.0"
