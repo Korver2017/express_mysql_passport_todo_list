@@ -11,7 +11,7 @@ app.listen (3000, function () {
 
 app.use (express.json ());
 
-var con = mysql.createConnection ({
+let con = mysql.createConnection ({
 	host: 'localhost',
 	user: 'root',
 	password: 'password',
@@ -40,10 +40,39 @@ app.get ('/', function (req, res) {
     console.log ('Data received from Db:');
     console.log (rows);
 
-    let data = rows;
-
-    res.send (data);
+    return res.send (rows);
   });
+});
+
+app.post ('/add', function (req, res) {
+
+  let addedData = req.body;
+  
+  console.log (req.body);
+
+  con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
+
+      if (error)
+        throw error;
+
+      return res.json ({error: false, data: results, message: 'Todo items added.'});
+  });
+});
+
+app.put ('/update', function (req, res) {
+
+    let updatedData = req.body;
+    let id = req.body.todo_id;
+
+    console.log (req.body);
+
+    con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
+
+      if (error)
+        throw error;
+
+      return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
+    });
 });
 
 app.post ('/remove', function (req, res) {
@@ -52,14 +81,13 @@ app.post ('/remove', function (req, res) {
 
   let id = req.body.todo_id;
 
-  con.query (`DELETE FROM todo_list WHERE todo_id = '${id}'`, function (error, results, fields) {
+  con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
 
-      if (error)
-        throw error;
+    if (error)
+      throw error;
 
-      else 
-        res.json ({error: false, data: results, message: 'Deleted successfully.'});
-        // return res.send({ error: false, data: results, message: 'products delete.' });
+    else 
+      res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
   });
 });
 
