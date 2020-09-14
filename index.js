@@ -58,7 +58,7 @@ app.post ('/remove', function (req, res) {
         throw error;
 
       else 
-        res.json ({error: false, data: results, message: 'Deleted sucessfully.'});
+        res.json ({error: false, data: results, message: 'Deleted successfully.'});
         // return res.send({ error: false, data: results, message: 'products delete.' });
   });
 });
