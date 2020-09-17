@@ -15,7 +15,7 @@ let con = mysql.createConnection ({
 	host: 'localhost',
 	user: 'root',
 	password: 'password',
-	database: 'sitepoint',
+	database: 'todo_list',
 	port: 3306
 });
 
@@ -52,17 +52,18 @@ app.post ('/add', function (req, res) {
 
   con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
 
-      if (error)
-        throw error;
+    if (error)
+      throw error;
 
-      return res.json ({error: false, data: results, message: 'Todo items added.'});
+    return res.json ({error: false, data: results, message: 'Todo items added.'});
   });
 });
 
 app.put ('/update', function (req, res) {
 
-    let updatedData = req.body;
-    let id = req.body.todo_id;
+    let updatedData = req.body
+      , id = req.body.todo_id
+      ;
 
     console.log (req.body);
 
