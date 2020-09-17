@@ -12,6 +12,15 @@ app.listen (3000, function () {
 app.use (express.json ());
 
 let con = mysql.createConnection ({
+
+  typeCast: function (field, next) {
+    if (field.type === 'TINY' && field.length === 1) {
+      return (field.string () === '1');
+    } else {
+      return next ();
+    }
+  },
+
 	host: 'localhost',
 	user: 'root',
 	password: 'password',
@@ -32,7 +41,7 @@ con.connect (function (err) {
 
 app.get ('/', function (req, res) {
 
-  con.query ('SELECT * FROM todo_list', (err, rows) => {
+  con.query (`SELECT * FROM todo_list`, (err, rows) => {
 
     if (err)
       throw err;
