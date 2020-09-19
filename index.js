@@ -12,10 +12,19 @@ app.listen (3000, function () {
 app.use (express.json ());
 
 let con = mysql.createConnection ({
+
+  typeCast: function (field, next) {
+    if (field.type === 'TINY' && field.length === 1) {
+      return (field.string () === '1');
+    } else {
+      return next ();
+    }
+  },
+
 	host: 'localhost',
 	user: 'root',
 	password: 'password',
-	database: 'sitepoint',
+	database: 'todo_list',
 	port: 3306
 });
 
@@ -32,7 +41,7 @@ con.connect (function (err) {
 
 app.get ('/', function (req, res) {
 
-  con.query ('SELECT * FROM todo_list', (err, rows) => {
+  con.query (`SELECT * FROM todo_list`, (err, rows) => {
 
     if (err)
       throw err;
@@ -52,17 +61,18 @@ app.post ('/add', function (req, res) {
 
   con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
 
-      if (error)
-        throw error;
+    if (error)
+      throw error;
 
-      return res.json ({error: false, data: results, message: 'Todo items added.'});
+    return res.json ({error: false, data: results, message: 'Todo items added.'});
   });
 });
 
 app.put ('/update', function (req, res) {
 
-    let updatedData = req.body;
-    let id = req.body.todo_id;
+    let updatedData = req.body
+      , id = req.body.todo_id
+      ;
 
     console.log (req.body);
 
