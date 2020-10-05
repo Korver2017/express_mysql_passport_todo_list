@@ -1,7 +1,9 @@
 let express = require ('express');
 let app = express ();
 let mysql = require ('mysql');
+let Sequelize = require ('sequelize');
 let cors = require ('cors');
+let config = require ('./config');
 
 app.use (cors ());
 
@@ -11,94 +13,114 @@ app.listen (3000, function () {
 
 app.use (express.json ());
 
-let con = mysql.createConnection ({
-
-  typeCast: function (field, next) {
-    if (field.type === 'TINY' && field.length === 1) {
-      return (field.string () === '1');
-    } else {
-      return next ();
-    }
-  },
-
-	host: 'localhost',
-	user: 'root',
-	password: 'password',
-	database: 'todo_list',
-	port: 3306
+const sequelize = new Sequelize (config.database, config.username, config.password, {
+    host: config.host,
+    port: config.port,
+    dialect: 'mysql',
+    pool: {
+      max: 5,
+      min: 0,
+      idle: 30000
+    },
 });
 
-con.connect (function (err) {
-
-  if (err) {
-		console.log ('connecting error');
-		console.log (err);
-    return;
-  }
-
-  console.log ('connecting success');
-});
-
-app.get ('/', function (req, res) {
-
-  con.query (`SELECT * FROM todo_list`, (err, rows) => {
-
-    if (err)
-      throw err;
-
-    console.log ('Data received from Db:');
-    console.log (rows);
-
-    return res.send (rows);
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+     console.error('Unable to connect to the database:', err);
   });
-});
 
-app.post ('/add', function (req, res) {
+// let con = mysql.createConnection ({
 
-  let addedData = req.body;
+//   typeCast: function (field, next) {
+//     if (field.type === 'TINY' && field.length === 1) {
+//       return (field.string () === '1');
+//     } else {
+//       return next ();
+//     }
+//   },
+
+// 	host: 'localhost',
+// 	user: 'root',
+// 	password: 'password',
+// 	database: 'todo_list',
+// 	port: 3306
+// });
+
+// con.connect (function (err) {
+
+//   if (err) {
+// 		console.log ('connecting error');
+// 		console.log (err);
+//     return;
+//   }
+
+//   console.log ('connecting success');
+// });
+
+// app.get ('/', function (req, res) {
+
+//   con.query (`SELECT * FROM todo_list`, (err, rows) => {
+
+//     if (err)
+//       throw err;
+
+//     console.log ('Data received from Db:');
+//     console.log (rows);
+
+//     return res.send (rows);
+//   });
+// });
+
+// app.post ('/add', function (req, res) {
+
+//   let addedData = req.body;
   
-  console.log (req.body);
+//   console.log (req.body);
 
-  con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
+//   con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
 
-    if (error)
-      throw error;
+//     if (error)
+//       throw error;
 
-    return res.json ({error: false, data: results, message: 'Todo items added.'});
-  });
-});
+//     return res.json ({error: false, data: results, message: 'Todo items added.'});
+//   });
+// });
 
-app.put ('/update', function (req, res) {
+// app.put ('/update', function (req, res) {
 
-    let updatedData = req.body
-      , id = req.body.todo_id
-      ;
+//     let updatedData = req.body
+//       , id = req.body.todo_id
+//       ;
 
-    console.log (req.body);
+//     console.log (req.body);
 
-    con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
+//     con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
 
-      if (error)
-        throw error;
+//       if (error)
+//         throw error;
 
-      return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
-    });
-});
+//       return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
+//     });
+// });
 
-app.post ('/remove', function (req, res) {
+// app.post ('/remove', function (req, res) {
 
-  console.log (req.body.todo_id);
+//   console.log (req.body.todo_id);
 
-  let id = req.body.todo_id;
+//   let id = req.body.todo_id;
 
-  con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
+//   con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
 
-    if (error)
-      throw error;
+//     if (error)
+//       throw error;
 
-    else 
-      res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
-  });
-});
+//     else 
+//       res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
+//   });
+// });
 
 console.log ('End');
