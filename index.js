@@ -25,13 +25,41 @@ const sequelize = new Sequelize (config.database, config.username, config.passwo
 });
 
 sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
+  .authenticate ()
+  .then (() => {
+    console.log ('Connection has been established successfully.');
   })
-  .catch(err => {
-     console.error('Unable to connect to the database:', err);
+  .catch (err => {
+    console.error ('Unable to connect to the database:', err);
   });
+
+const TodoList = sequelize.define ('todo_list', {
+  todo_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true
+  },
+  todo_item: Sequelize.STRING (150),
+  date: Sequelize.STRING (128),
+  todo_done: Sequelize.STRING (254),
+}, {
+  timestamps: false,
+  freezeTableName: true,
+});
+
+(async () => {
+
+  let todoList = await TodoList.findAll ({
+    where: {
+      todo_id: 30
+    }
+  });
+
+  console.log(`find ${todoList.length}:`);
+
+  for (let todo of todoList) {
+    console.log (JSON.stringify (todo));
+  }
+})();
 
 // let con = mysql.createConnection ({
 
