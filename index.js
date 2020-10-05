@@ -1,7 +1,9 @@
 let express = require ('express');
 let app = express ();
 let mysql = require ('mysql');
+let Sequelize = require ('sequelize');
 let cors = require ('cors');
+let config = require ('./config');
 
 app.use (cors ());
 
@@ -11,84 +13,142 @@ app.listen (3000, function () {
 
 app.use (express.json ());
 
-let con = mysql.createConnection ({
-	host: 'localhost',
-	user: 'root',
-	password: 'password',
-	database: 'sitepoint',
-	port: 3306
+const sequelize = new Sequelize (config.database, config.username, config.password, {
+    host: config.host,
+    port: config.port,
+    dialect: 'mysql',
+    pool: {
+      max: 5,
+      min: 0,
+      idle: 30000
+    },
 });
 
-con.connect (function (err) {
+sequelize
+  .authenticate ()
+  .then (() => {
+    console.log ('Connection has been established successfully.');
+  })
+  .catch (err => {
+    console.error ('Unable to connect to the database:', err);
+  });
 
-  if (err) {
-		console.log ('connecting error');
-		console.log (err);
-    return;
+const TodoList = sequelize.define ('todo_list', {
+  todo_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true
+  },
+  todo_item: Sequelize.STRING (150),
+  date: Sequelize.STRING (128),
+  todo_done: Sequelize.STRING (254),
+}, {
+  timestamps: false,
+  freezeTableName: true,
+});
+
+(async () => {
+
+  let todoList = await TodoList.findAll ({
+    where: {
+      todo_id: 30
+    }
+  });
+
+  console.log(`find ${todoList.length}:`);
+
+  for (let todo of todoList) {
+    console.log (JSON.stringify (todo));
   }
+})();
 
-  console.log ('connecting success');
-});
+// let con = mysql.createConnection ({
 
-app.get ('/', function (req, res) {
+//   typeCast: function (field, next) {
+//     if (field.type === 'TINY' && field.length === 1) {
+//       return (field.string () === '1');
+//     } else {
+//       return next ();
+//     }
+//   },
 
-  con.query ('SELECT * FROM todo_list', (err, rows) => {
+// 	host: 'localhost',
+// 	user: 'root',
+// 	password: 'password',
+// 	database: 'todo_list',
+// 	port: 3306
+// });
 
-    if (err)
-      throw err;
+// con.connect (function (err) {
 
-    console.log ('Data received from Db:');
-    console.log (rows);
+//   if (err) {
+// 		console.log ('connecting error');
+// 		console.log (err);
+//     return;
+//   }
 
-    return res.send (rows);
-  });
-});
+//   console.log ('connecting success');
+// });
 
-app.post ('/add', function (req, res) {
+// app.get ('/', function (req, res) {
 
-  let addedData = req.body;
+//   con.query (`SELECT * FROM todo_list`, (err, rows) => {
+
+//     if (err)
+//       throw err;
+
+//     console.log ('Data received from Db:');
+//     console.log (rows);
+
+//     return res.send (rows);
+//   });
+// });
+
+// app.post ('/add', function (req, res) {
+
+//   let addedData = req.body;
   
-  console.log (req.body);
+//   console.log (req.body);
 
-  con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
+//   con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
 
-      if (error)
-        throw error;
+//     if (error)
+//       throw error;
 
-      return res.json ({error: false, data: results, message: 'Todo items added.'});
-  });
-});
+//     return res.json ({error: false, data: results, message: 'Todo items added.'});
+//   });
+// });
 
-app.put ('/update', function (req, res) {
+// app.put ('/update', function (req, res) {
 
-    let updatedData = req.body;
-    let id = req.body.todo_id;
+//     let updatedData = req.body
+//       , id = req.body.todo_id
+//       ;
 
-    console.log (req.body);
+//     console.log (req.body);
 
-    con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
+//     con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
 
-      if (error)
-        throw error;
+//       if (error)
+//         throw error;
 
-      return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
-    });
-});
+//       return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
+//     });
+// });
 
-app.post ('/remove', function (req, res) {
+// app.post ('/remove', function (req, res) {
 
-  console.log (req.body.todo_id);
+//   console.log (req.body.todo_id);
 
-  let id = req.body.todo_id;
+//   let id = req.body.todo_id;
 
-  con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
+//   con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
 
-    if (error)
-      throw error;
+//     if (error)
+//       throw error;
 
-    else 
-      res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
-  });
-});
+//     else 
+//       res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
+//   });
+// });
 
 console.log ('End');
