@@ -9,10 +9,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       todo_item: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       done: {
-        type: Sequelize.BOOLEAN
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

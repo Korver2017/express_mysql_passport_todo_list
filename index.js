@@ -33,33 +33,49 @@ sequelize
     console.error ('Unable to connect to the database:', err);
   });
 
-const TodoList = sequelize.define ('todo_list', {
-  todo_id: {
+const TodoLists = sequelize.define ('todolists', {
+  id: {
     type: Sequelize.INTEGER,
     primaryKey: true
   },
   todo_item: Sequelize.STRING (150),
-  date: Sequelize.STRING (128),
-  todo_done: Sequelize.STRING (254),
+  done: Sequelize.BOOLEAN,
+  createdAt: Sequelize.DATE,
+  // create_time: Sequelize.DATE,
 }, {
   timestamps: false,
   freezeTableName: true,
 });
 
-(async () => {
+app.get ('/', function (req, res) {
 
-  let todoList = await TodoList.findAll ({
-    where: {
-      todo_id: 30
-    }
-  });
+  TodoLists.findAll ()
+    .then (todos => {
 
-  console.log(`find ${todoList.length}:`);
+      console.log (`find ${todos.length}:`);
 
-  for (let todo of todoList) {
-    console.log (JSON.stringify (todo));
-  }
-})();
+      for (let todo of todos) {
+        console.log (JSON.stringify (todos));
+      }
+
+      return res.json (todos);
+    });
+});
+
+// app.post ('/remove', function (req, res) {
+
+//   TodoLists.destroy ({
+//     where: {
+//       id: 7
+//     }
+//   })
+//   .then (function (rowDeleted) {
+
+//     if (rowDeleted) {
+//       console.log ('Deleted successfully');
+//     }
+//   });
+// });
 
 // let con = mysql.createConnection ({
 
