@@ -33,19 +33,20 @@ sequelize
     console.error ('Unable to connect to the database:', err);
   });
 
-const TodoLists = sequelize.define ('todolists', {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true
-  },
-  todo_item: Sequelize.STRING (150),
-  done: Sequelize.BOOLEAN,
-  createdAt: Sequelize.DATE,
-  // create_time: Sequelize.DATE,
-}, {
-  timestamps: false,
-  freezeTableName: true,
-});
+// const TodoLists = sequelize.define ('todolists', {
+//   // id: {
+//   //   type: Sequelize.INTEGER,
+//   //   primaryKey: true
+//   // },
+//   todo_item: Sequelize.STRING,
+//   // done: Sequelize.BOOLEAN,
+//   // createdAt: Sequelize.DATE,
+//   // updatedAt: Sequelize.DATE,
+//   // create_time: Sequelize.DATE,
+// }, {
+//   timestamps: false,
+//   freezeTableName: true,
+// });
 
 app.get ('/', function (req, res) {
 
@@ -62,48 +63,39 @@ app.get ('/', function (req, res) {
     });
 });
 
-// app.post ('/remove', function (req, res) {
+// app.post ('/add', function (req, res) {
 
-//   TodoLists.destroy ({
-//     where: {
-//       id: 7
-//     }
-//   })
-//   .then (function (rowDeleted) {
+//   let addedData = req.body;
 
-//     if (rowDeleted) {
-//       console.log ('Deleted successfully');
-//     }
-//   });
+//   console.log (req.body);
+
+// TodoLists.create ({
+//   // id: 11,
+//   todo_item: 'qwer',
+//   // createdAt: new Date (),
+//   // updatedAt: new Date ()
+// })
+// .then (res => {
+//   console.log (res.id);
+// })
 // });
 
-// let con = mysql.createConnection ({
+app.post ('/remove', function (req, res) {
 
-//   typeCast: function (field, next) {
-//     if (field.type === 'TINY' && field.length === 1) {
-//       return (field.string () === '1');
-//     } else {
-//       return next ();
-//     }
-//   },
+  TodoLists.destroy ({
+    where: {
+      id: req.body.id
+    }
+  })
+  .then (function (rowDeleted) {
 
-// 	host: 'localhost',
-// 	user: 'root',
-// 	password: 'password',
-// 	database: 'todo_list',
-// 	port: 3306
-// });
+    if (rowDeleted) {
+      console.log ('Deleted successfully');
+    }
 
-// con.connect (function (err) {
-
-//   if (err) {
-// 		console.log ('connecting error');
-// 		console.log (err);
-//     return;
-//   }
-
-//   console.log ('connecting success');
-// });
+    res.json ({error: false, data: rowDeleted, message: 'Todo items deleted successfully.'});
+  });
+});
 
 // app.get ('/', function (req, res) {
 
