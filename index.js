@@ -24,29 +24,43 @@ const sequelize = new Sequelize (config.database, config.username, config.passwo
     },
 });
 
+const TodoLists = sequelize.define ('todolists', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true
+  },
+  todo_item: Sequelize.STRING,
+  done: Sequelize.BOOLEAN,
+  createdAt: Sequelize.DATE,
+  updatedAt: Sequelize.DATE,
+}, {
+  // timestamps: false,
+  // freezeTableName: true,
+});
+
 sequelize
   .authenticate ()
   .then (() => {
     console.log ('Connection has been established successfully.');
+
+    (async () => {
+
+      let todos = await TodoLists.findAll ({
+        where: {
+          todo_item: 'QWER'
+        }
+      });
+
+      console.log (`find ${todos.length}:`);
+
+      for (let todo of todos) {
+        console.log (JSON.stringify (todo));
+      }
+    })();
   })
   .catch (err => {
     console.error ('Unable to connect to the database:', err);
   });
-
-// const TodoLists = sequelize.define ('todolists', {
-//   // id: {
-//   //   type: Sequelize.INTEGER,
-//   //   primaryKey: true
-//   // },
-//   todo_item: Sequelize.STRING,
-//   // done: Sequelize.BOOLEAN,
-//   // createdAt: Sequelize.DATE,
-//   // updatedAt: Sequelize.DATE,
-//   // create_time: Sequelize.DATE,
-// }, {
-//   timestamps: false,
-//   freezeTableName: true,
-// });
 
 app.get ('/', function (req, res) {
 
