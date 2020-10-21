@@ -108,6 +108,8 @@ app.put ('/update', async (req, res) => {
         id: req.body.id
       }
     });
+
+    return res.json ({error: false, data: req.body.todo_item, message: 'Todo items updated successfully.'});
   }
   catch (err) {
     console.log (err.message);
