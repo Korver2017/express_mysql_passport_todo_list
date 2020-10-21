@@ -39,13 +39,14 @@ const TodoLists = sequelize.define ('todolists', {
 });
 
 function retrieveRoute () {
+
   app.get ('/', async (req, res) => {
 
     try {
 
       let todos = await TodoLists.findAll ();
+
       console.log (`find ${todos.length}`);
-      
       return res.json (todos);
     }
     catch (err) {
@@ -76,7 +77,27 @@ function addTodoRoute () {
   });
 };
 
-function deleteRoute () {
+function updateTodoRoute () {
+  
+  app.put ('/update', async (req, res) => {
+
+    try {
+
+      await TodoLists.update ({todo_item: req.body.todo_item}, {
+        where: {
+          id: req.body.id
+        }
+      });
+
+      return res.json ({error: false, data: req.body.todo_item, message: 'Todo items updated successfully.'});
+    }
+    catch (err) {
+      console.log (err.message);
+    }
+  });
+};
+
+function deleteTodoRoute () {
 
   app.post ('/remove', async (req, res) => {
 
@@ -94,29 +115,6 @@ function deleteRoute () {
   });
 };
 
-function updateRoute () {
-  
-  app.put ('/update', async (req, res) => {
-
-    try {
-
-      console.log (req.body);
-
-      await TodoLists.update ({todo_item: req.body.todo_item}, {
-
-        where: {
-          id: req.body.id
-        }
-      });
-
-      return res.json ({error: false, data: req.body.todo_item, message: 'Todo items updated successfully.'});
-    }
-    catch (err) {
-      console.log (err.message);
-    }
-  });
-};
-
 sequelize
   .authenticate ()
   .then (() => {
@@ -125,8 +123,8 @@ sequelize
 
     retrieveRoute ();
     addTodoRoute ();
-    deleteRoute ();
-    updateRoute ();
+    deleteTodoRoute ();
+    updateTodoRoute ();
   })
   .catch (err => {
     console.error ('Unable to connect to the database:', err);
