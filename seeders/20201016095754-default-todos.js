@@ -14,6 +14,21 @@ module.exports = {
         updatedAt: new Date (),
       },
       {
+        todo_item: 'Survey Password.js',
+        createdAt: new Date (),
+        updatedAt: new Date (),
+      },
+      {
+        todo_item: 'Udemy Course',
+        createdAt: new Date (),
+        updatedAt: new Date (),
+      },
+      {
+        todo_item: 'Clean Room',
+        createdAt: new Date (),
+        updatedAt: new Date (),
+      },
+      {
         todo_item: 'Learn Password.js',
         createdAt: new Date (),
         updatedAt: new Date (),

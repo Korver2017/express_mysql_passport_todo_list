@@ -41,69 +41,55 @@ const TodoLists = sequelize.define ('todolists', {
 sequelize
   .authenticate ()
   .then (() => {
+
     console.log ('Connection has been established successfully.');
 
-    
+    app.get ('/', async (req, res) => {
+
+      try {
+
+        let todos = await TodoLists.findAll ();
+        console.log (`find ${todos.length}`);
+        
+        return res.json (todos);
+      }
+      catch (err) {
+        console.log (err.message);
+      };
+    });
+
+    app.post ('/add', async (req, res) => {
+
+      try {
+        
+        let addedTodo = req.body.todo_item;
+
+        await TodoLists.create ({
+          todo_item: addedTodo,
+          createdAt: new Date (),
+          updatedAt: new Date ()
+        });
+
+        return res.json ({error: false, data: addedTodo, message: 'Todo items added successfully.'});
+      }
+      catch (err) {
+        console.log (err.message);
+      };
+    });
   })
   .catch (err => {
     console.error ('Unable to connect to the database:', err);
   });
 
-app.get ('/', async (req, res) => {
-
-  try {
-
-    let todos = await TodoLists.findAll ();
-
-    console.log (`find ${todos.length}:`);
-
-    for (let todo of todos) {
-      console.log (JSON.stringify (todo));
-    }
-
-    return res.json (todos);
-  }
-  catch (err) {
-    console.log (err.message);
-  };
-});
-
-app.post ('/add', async (req, res) => {
-
-  try {
-    
-    let source = req.body.todo_item;
-
-    await TodoLists.create ({
-      todo_item: source,
-      createdAt: new Date (),
-      updatedAt: new Date ()
-    });
-
-    return res.json ({error: false, data: source, message: 'Todo items added.'});
-  }
-  catch (err) {
-    console.log (err.message);
-  };
-});
-
 app.post ('/remove', async (req, res) => {
 
   try {
-
     TodoLists.destroy ({
       where: {
         id: req.body.id
       }
     })
-    .then (function (target) {
-
-      if (target) {
-        console.log ('Deleted successfully');
-      }
-
-      res.json ({error: false, data: target, message: 'Todo items deleted successfully.'});
-    });
+    .then (() => res.json ({error: false, message: 'Todo items deleted successfully.'}));
   }
   catch (err) {
     console.log (err.message);
