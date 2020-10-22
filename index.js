@@ -14,141 +14,118 @@ app.listen (3000, function () {
 app.use (express.json ());
 
 const sequelize = new Sequelize (config.database, config.username, config.password, {
-    host: config.host,
-    port: config.port,
-    dialect: 'mysql',
-    pool: {
-      max: 5,
-      min: 0,
-      idle: 30000
-    },
+  host: config.host,
+  port: config.port,
+  dialect: 'mysql',
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 30000
+  },
 });
+
+const TodoLists = sequelize.define ('todolists', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true
+  },
+  todo_item: Sequelize.STRING,
+  done: Sequelize.BOOLEAN,
+  createdAt: Sequelize.DATE,
+  updatedAt: Sequelize.DATE,
+}, {
+  // timestamps: false,
+  // freezeTableName: true,
+});
+
+function retrieveRoute () {
+
+  app.get ('/', async (req, res) => {
+
+    try {
+
+      let todos = await TodoLists.findAll ();
+
+      console.log (`find ${todos.length}`);
+      return res.json (todos);
+    }
+    catch (err) {
+      console.log (err.message);
+    };
+  });
+};
+
+function addTodoRoute () {
+
+  app.post ('/add', async (req, res) => {
+
+    try {
+      
+      let addedTodo = req.body.todo_item;
+
+      await TodoLists.create ({
+        todo_item: addedTodo,
+        createdAt: new Date (),
+        updatedAt: new Date ()
+      });
+
+      return res.json ({error: false, data: addedTodo, message: 'Todo items added successfully.'});
+    }
+    catch (err) {
+      console.log (err.message);
+    };
+  });
+};
+
+function updateTodoRoute () {
+  
+  app.put ('/update', async (req, res) => {
+
+    try {
+
+      await TodoLists.update ({todo_item: req.body.todo_item}, {
+        where: {
+          id: req.body.id
+        }
+      });
+
+      return res.json ({error: false, data: req.body.todo_item, message: 'Todo items updated successfully.'});
+    }
+    catch (err) {
+      console.log (err.message);
+    }
+  });
+};
+
+function deleteTodoRoute () {
+
+  app.post ('/remove', async (req, res) => {
+
+    try {
+      TodoLists.destroy ({
+        where: {
+          id: req.body.id
+        }
+      })
+      .then (() => res.json ({error: false, message: 'Todo items deleted successfully.'}));
+    }
+    catch (err) {
+      console.log (err.message);
+    };
+  });
+};
 
 sequelize
   .authenticate ()
   .then (() => {
+
     console.log ('Connection has been established successfully.');
+
+    retrieveRoute ();
+    addTodoRoute ();
+    deleteTodoRoute ();
+    updateTodoRoute ();
   })
   .catch (err => {
     console.error ('Unable to connect to the database:', err);
   });
-
-const TodoList = sequelize.define ('todo_list', {
-  todo_id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true
-  },
-  todo_item: Sequelize.STRING (150),
-  date: Sequelize.STRING (128),
-  todo_done: Sequelize.STRING (254),
-}, {
-  timestamps: false,
-  freezeTableName: true,
-});
-
-(async () => {
-
-  let todoList = await TodoList.findAll ({
-    where: {
-      todo_id: 30
-    }
-  });
-
-  console.log(`find ${todoList.length}:`);
-
-  for (let todo of todoList) {
-    console.log (JSON.stringify (todo));
-  }
-})();
-
-// let con = mysql.createConnection ({
-
-//   typeCast: function (field, next) {
-//     if (field.type === 'TINY' && field.length === 1) {
-//       return (field.string () === '1');
-//     } else {
-//       return next ();
-//     }
-//   },
-
-// 	host: 'localhost',
-// 	user: 'root',
-// 	password: 'password',
-// 	database: 'todo_list',
-// 	port: 3306
-// });
-
-// con.connect (function (err) {
-
-//   if (err) {
-// 		console.log ('connecting error');
-// 		console.log (err);
-//     return;
-//   }
-
-//   console.log ('connecting success');
-// });
-
-// app.get ('/', function (req, res) {
-
-//   con.query (`SELECT * FROM todo_list`, (err, rows) => {
-
-//     if (err)
-//       throw err;
-
-//     console.log ('Data received from Db:');
-//     console.log (rows);
-
-//     return res.send (rows);
-//   });
-// });
-
-// app.post ('/add', function (req, res) {
-
-//   let addedData = req.body;
-  
-//   console.log (req.body);
-
-//   con.query ('INSERT INTO todo_list SET ?', addedData, function (error, results, fields) {
-
-//     if (error)
-//       throw error;
-
-//     return res.json ({error: false, data: results, message: 'Todo items added.'});
-//   });
-// });
-
-// app.put ('/update', function (req, res) {
-
-//     let updatedData = req.body
-//       , id = req.body.todo_id
-//       ;
-
-//     console.log (req.body);
-
-//     con.query ('UPDATE todo_list SET ? WHERE todo_id = ?', [updatedData, id], function (error, results, fields) {
-
-//       if (error)
-//         throw error;
-
-//       return res.json ({error: false, data: results, message: 'Todo items updated successfully.'});
-//     });
-// });
-
-// app.post ('/remove', function (req, res) {
-
-//   console.log (req.body.todo_id);
-
-//   let id = req.body.todo_id;
-
-//   con.query ('DELETE FROM todo_list WHERE todo_id = ?', id, function (error, results, fields) {
-
-//     if (error)
-//       throw error;
-
-//     else 
-//       res.json ({error: false, data: results, message: 'Todo items deleted successfully.'});
-//   });
-// });
-
-console.log ('End');
