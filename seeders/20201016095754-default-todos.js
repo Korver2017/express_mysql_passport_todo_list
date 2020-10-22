@@ -14,7 +14,7 @@ module.exports = {
         updatedAt: new Date (),
       },
       {
-        todo_item: 'Survey Password.js',
+        todo_item: 'Survey Passport.js',
         createdAt: new Date (),
         updatedAt: new Date (),
       },
